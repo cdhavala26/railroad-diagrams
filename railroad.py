@@ -3,6 +3,7 @@ from __future__ import division, unicode_literals
 import sys
 import math as Math
 
+sys.stdout = open('file.html', 'w')
 if sys.version_info >= (3, ):
 	unicode = str
 
@@ -1275,3 +1276,5 @@ if __name__ == '__main__':
 		</style>
 		''')
 	sys.stdout.write('</body></html>')
+
+sys.stdout.close
