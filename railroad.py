@@ -3,7 +3,8 @@ from __future__ import division, unicode_literals
 import sys
 import math as Math
 
-sys.stdout = open('file.html', 'w')
+#sys.stdout = open('EGFR.html', 'w')
+
 if sys.version_info >= (3, ):
 	unicode = str
 
@@ -22,6 +23,7 @@ def e(text):
 	import re
 	return re.sub(r"[*_\`\[\]<&]", lambda c: "&#{0};".format(ord(c.group(0))), unicode(text))
 
+
 def determineGaps(outer, inner):
 	diff = outer - inner
 	if INTERNAL_ALIGNMENT == 'left':
@@ -31,16 +33,17 @@ def determineGaps(outer, inner):
 	else:
 		return diff/2, diff/2
 
+
 def doubleenumerate(seq):
 	length = len(list(seq))
 	for i,item in enumerate(seq):
 		yield i, i-length, item
 
+
 def addDebug(el):
 	if not DEBUG:
 		return
 	el.attrs['data-x'] = "{0} w:{1} h:{2}/{3}/{4}".format(type(el).__name__, el.width, el.up, el.height, el.down)
-
 
 
 class DiagramItem(object):
@@ -557,6 +560,7 @@ class OptionalSequence(DiagramMultiContainer):
 					.addTo(self))
 		return self
 
+
 class AlternatingSequence(DiagramMultiContainer):
 	def __new__(cls, *items):
 		if len(items) == 2:
@@ -1035,8 +1039,6 @@ def ZeroOrMore(item, repeat=None, skip=False):
 	return result
 
 
-
-
 class Group(DiagramItem):
 	def __init__(self, item, label):
 		DiagramItem.__init__(self, 'g')
@@ -1263,13 +1265,19 @@ class Skip(DiagramItem):
 
 if __name__ == '__main__':
 	def add(name, diagram):
-		sys.stdout.write('<h1>{0}</h1>\n'.format(e(name)))
+		sys.stdout.write('<h2>{0}</h2>\n'.format(e(name)))
 		diagram.writeSvg(sys.stdout.write)
 		sys.stdout.write('\n')
 
 	import sys
+
+	fileInput = input('Enter input file name: ')
+    
+	fileOutput = input("Enter output file name: ")
+	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileOutput + '.html', 'w')
+        
 	sys.stdout.write("<!doctype html><title>Test</title><body>")
-	exec(open('test.py').read())
+	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.py').read())
 	sys.stdout.write('''
 		<style>
 		.blue text { fill: blue; }
