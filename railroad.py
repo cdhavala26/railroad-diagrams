@@ -1220,7 +1220,7 @@ class Comment(DiagramItem):
 		self.href = href
 		self.title = title
 		self.cls = cls
-		self.width = len(text) * COMMENT_CHAR_WIDTH + 10
+		self.width = len(text) * COMMENT_CHAR_WIDTH + 20
 		self.up = 8
 		self.down = 8
 		self.needsSpace = True
@@ -1271,13 +1271,67 @@ if __name__ == '__main__':
 
 	import sys
 
-	fileInput = input('Enter input file name: ')
+    #OLD
+#	fileInput = input('Enter input file name: ') 
     
-	fileOutput = input("Enter output file name: ")
-	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileOutput + '.html', 'w')
+#	fileOutput = input("Enter output file name: ") 
+#	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.html', 'w') 
         
+#	sys.stdout.write("<!doctype html><title>Test</title><body>") 
+#	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' +fileOutput  '.py').read()) 
+	
+    #NEW - tests if user inserted file name is .bngl and reads .bngl file
+
+	fileInput = input('Enter input file name: ')
+
+	text1 = '''
+import sys
+from railroad import *
+print('<h1>Molecule Types:</h1>')
+add('EGFR',
+   	Diagram(
+       	"EGFR(",
+   	    Choice(0, Comment("    "),
+   	           'site',
+   	           ),
+     	 ")"
+
+   	)
+    )
+
+add('EGF',
+    Diagram(
+        "EFG(",
+        Choice(0, Comment("    "),
+               'site',
+               ),
+        ")"
+    )
+    )
+add('Gbr2',
+    Diagram(
+        "EFG(",
+        Choice(0, Comment("    "),
+               'site',
+               ),
+        ")"
+    )
+    )
+
+'''
+
+	sys.stdout = open('Data/' + fileInput + '.py', 'w')
+	sys.stdout.write(text1)
+	sys.stdout.close
+
+	sys.stdout = open('Data/' + fileInput + '.html', 'w')
+    
+	with open('Data/' + fileInput + '.py','r+') as fout:
+		with open('Data/' + fileInput + '.txt','w+') as fin:
+			fin.write(fout.read())
+
 	sys.stdout.write("<!doctype html><title>Test</title><body>")
-	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.py').read())
+	exec(open('Data/' + fileInput + '.py').read())
 	sys.stdout.write('''
 		<style>
 		.blue text { fill: blue; }
