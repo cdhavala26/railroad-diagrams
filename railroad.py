@@ -1319,6 +1319,18 @@ add('Gbr2',
     )
 
 '''
+    
+	write = False
+	for line in fileInput:
+		if "begin" in line:
+			print(line[6:])
+			write = True
+			continue
+		elif "end" in line:
+			write = False
+			continue
+		elif write:
+			print(line)
 
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
 	sys.stdout.write(text1)
