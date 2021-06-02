@@ -1302,12 +1302,13 @@ if __name__ == '__main__':
  			continue
 		elif write:
  			molecule_name = line.rsplit('(', 1)[0]
+ 			sites = line.split('(', 1)[1].split(')')[0] #splits all sites in 
  			text_molecule = text_molecule + '''
-add(' '''+molecule_name+''' ',
+add("'''+molecule_name+'''",
     Diagram(
-        "''' +molecule_name+ ''' (",
+        "''' +molecule_name+ '''(",
         Choice(0, Comment("    "),
-               'site',
+               "'''+sites+'''",
                ),
         ")"
     ))
@@ -1323,42 +1324,6 @@ from railroad import *
 	text_input_types = '''
 print('<h1>''' + input_types.capitalize() + ''' Types</h1>')
     '''
-
-# =============================================================================
-# '''
-# print('<h1>Molecule Types:</h1>')
-# add('EGFR',
-#    	Diagram(
-#        	"EGFR(",
-#    	    Choice(0, Comment("    "),
-#     	           'site',
-#     	           ),
-#       	 ")"
-# 
-#    	)
-#     )
-# 
-# add('EGF',
-#     Diagram(
-#         "EFG(",
-#         Choice(0, Comment("    "),
-#                 'site',
-#                 ),
-#         ")"
-#     )
-#     )
-# add('Gbr2',
-#     Diagram(
-#         "EFG(",
-#         Choice(0, Comment("    "),
-#                 'site',
-#                 ),
-#         ")"
-#     )
-#     )
-# 
-# '''  
-# =============================================================================
 
 
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
