@@ -1283,57 +1283,86 @@ if __name__ == '__main__':
     #NEW - tests if user inserted file name is .bngl and reads .bngl file
 
 	fileInput = input('Enter input file name: ')
-
-	text1 = '''
-import sys
-from railroad import *
-print('<h1>Molecule Types:</h1>')
-add('EGFR',
-   	Diagram(
-       	"EGFR(",
-   	    Choice(0, Comment("    "),
-   	           'site',
-   	           ),
-     	 ")"
-
-   	)
-    )
-
-add('EGF',
-    Diagram(
-        "EFG(",
-        Choice(0, Comment("    "),
-               'site',
-               ),
-        ")"
-    )
-    )
-add('Gbr2',
-    Diagram(
-        "EFG(",
-        Choice(0, Comment("    "),
-               'site',
-               ),
-        ")"
-    )
-    )
-
-'''
+	fileToRead = open('Data/' + fileInput + '.bngl', 'r')   
     
 	write = False
-	for line in fileInput:
-		if "begin" in line:
-			print(line[6:])
-			write = True
-			continue
+# 	input_types = ''
+	text_molecule = ''
+	for line in fileToRead:
+		if "begin" in line: # identifies input type ex. molecule, observables, etc. 
+ 			input_types = line[6:len(line)-2]
+# =============================================================================
+#  			text_input_types = input_types + ''' 
+# print('<h1>''' + input_types.capitalize() + ''' Types</h1>')'''
+# =============================================================================
+ 			write = True
+ 			continue
 		elif "end" in line:
-			write = False
-			continue
+ 			write = False
+ 			continue
 		elif write:
-			print(line)
+ 			molecule_name = line.rsplit('(', 1)[0]
+ 			text_molecule = text_molecule + '''
+add(' '''+molecule_name+''' ',
+    Diagram(
+        "''' +molecule_name+ ''' (",
+        Choice(0, Comment("    "),
+               'site',
+               ),
+        ")"
+    ))
+    
+    '''
+             
+             
+	text_intro = '''
+import sys
+from railroad import *
+'''
+
+	text_input_types = '''
+print('<h1>''' + input_types.capitalize() + ''' Types</h1>')
+    '''
+
+# =============================================================================
+# '''
+# print('<h1>Molecule Types:</h1>')
+# add('EGFR',
+#    	Diagram(
+#        	"EGFR(",
+#    	    Choice(0, Comment("    "),
+#     	           'site',
+#     	           ),
+#       	 ")"
+# 
+#    	)
+#     )
+# 
+# add('EGF',
+#     Diagram(
+#         "EFG(",
+#         Choice(0, Comment("    "),
+#                 'site',
+#                 ),
+#         ")"
+#     )
+#     )
+# add('Gbr2',
+#     Diagram(
+#         "EFG(",
+#         Choice(0, Comment("    "),
+#                 'site',
+#                 ),
+#         ")"
+#     )
+#     )
+# 
+# '''  
+# =============================================================================
+
 
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
-	sys.stdout.write(text1)
+	sys.stdout.write(text_intro + text_input_types + text_molecule)
 	sys.stdout.close
 
 	sys.stdout = open('Data/' + fileInput + '.html', 'w')

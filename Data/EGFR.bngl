@@ -3,9 +3,3 @@ EGFR(site)
 EGF(site)
 Grb2(site)
 end molecules
-
-begin observables
-EGFR(site)
-EGF(site)
-end observables
-
