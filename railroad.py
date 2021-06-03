@@ -1271,14 +1271,15 @@ if __name__ == '__main__':
 
 	import sys
 
-    #OLD
-#	fileInput = input('Enter input file name: ') 
-    
-#	fileOutput = input("Enter output file name: ") 
-#	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.html', 'w') 
-        
-#	sys.stdout.write("<!doctype html><title>Test</title><body>") 
-#	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' +fileOutput  '.py').read()) 
+# ============================================================================= OLD
+# 	fileInput = input('Enter input file name: ') 
+#     
+# 	fileOutput = input("Enter output file name: ") 
+# 	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.html', 'w') 
+#         
+# 	sys.stdout.write("<!doctype html><title>Test</title><body>") 
+# 	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' +fileOutput  '.py').read()) 
+# =============================================================================
 	
     #NEW - tests if user inserted file name is .bngl and reads .bngl file
 
@@ -1302,19 +1303,32 @@ if __name__ == '__main__':
  			continue
 		elif write:
  			molecule_name = line.rsplit('(', 1)[0]
- 			sites = line.split('(', 1)[1].split(')')[0] #splits all sites in 
+ 			sites = line.split('(', 1)[1].split(')')[0].split(",") #splits all sites into a list
+ 			
  			text_molecule = text_molecule + '''
 add("'''+molecule_name+'''",
     Diagram(
-        "''' +molecule_name+ '''(",
+		"''' +molecule_name+ '''(",
+        '''
+		for i in sites:
+			if '~' in i:
+				states = i.split('~')
+				text_molecule = text_molecule + '''
         Choice(0, Comment("    "),
-               "'''+sites+'''",
-               ),
-        ")"
-    ))
-    
-    '''
-             
+               Sequence("'''+states[0]+'''",
+                        Choice(0, Comment("    "), "~'''+states[1]+'''", "~'''+states[2]+'''"),)
+			   ),
+				'''
+			else:
+				text_molecule = text_molecule + '''
+        Choice(0, Comment("    "),
+                "'''+i+'''",
+				),
+			    '''
+		text_molecule = text_molecule + ''' 
+		")"
+	))
+	'''
              
 	text_intro = '''
 import sys
@@ -1346,3 +1360,4 @@ print('<h1>''' + input_types.capitalize() + ''' Types</h1>')
 	sys.stdout.write('</body></html>')
 
 sys.stdout.close
+	

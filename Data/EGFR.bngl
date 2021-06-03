@@ -1,5 +1,6 @@
 begin molecules
-EGFR(site)
+EGFR(ecd, Y1~U~P, Y2~U~P)
 EGF(site)
-Grb2(site)
+Grb2(sh2)
+Shc(sh3~U~P)
 end molecules
