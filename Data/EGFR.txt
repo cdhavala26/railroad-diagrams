@@ -2,8 +2,6 @@
 import sys
 from railroad import *
 
-print('<h1>Molecule Types</h1>')
-    
 add("EGFR",
     Diagram(
 		"EGFR(",
@@ -52,8 +50,29 @@ add("Shc",
 		"Shc(",
         
         Choice(0, Comment("    "),
-               Sequence("sh3",
+               Sequence("sh",
                         Choice(0, Comment("    "), "~U", "~P"),)
+			   ),
+				 
+		")"
+	))
+	
+add("EGFR",
+    Diagram(
+		"EGFR(",
+        
+        Choice(0, Comment("    "),
+                "ecd",
+				),
+			    
+        Choice(0, Comment("    "),
+               Sequence("Y1",
+                        Choice(0, Comment("    "), "~U"),)
+			   ),
+				
+        Choice(0, Comment("    "),
+               Sequence(" Y2",
+                        Choice(0, Comment("    "), "~U"),)
 			   ),
 				 
 		")"
