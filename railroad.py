@@ -1270,7 +1270,40 @@ if __name__ == '__main__':
 		sys.stdout.write('\n')
 
 	import sys
-
+	
+	def molecule(mol):
+		molecule_name = mol.rsplit('(', 1)[0]
+		text = ''
+		text = text + '''
+add("'''+molecule_name+'''",
+    Diagram(
+		"''' + molecule_name + '''(",'''
+		sites = mol.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
+		for i in sites:
+			 if '~' in i:
+				 states = i.split('~')
+				 text = text + '''
+        Choice(0, Comment("    "),
+               Sequence("'''+states[0]+'''",
+                        Choice(0, Comment("    "), '''
+				 for j in states[1:]:
+					 if j == states[-1]:
+						 text = text + ''' "~'''+j+'''"),)
+			   ),
+				   '''
+					 else:
+						 text = text + ''' "~'''+j+'''",'''
+			 else:
+				   text = text + '''
+        Choice(0, Comment("    "),
+                "'''+i+'''",
+				),
+		'''
+		text = text + ''' 
+		")"
+	))
+	'''
+		return text
 # ============================================================================= OLD
 # 	fileInput = input('Enter input file name: ')
 #
@@ -1293,82 +1326,84 @@ if __name__ == '__main__':
 	for line in fileToRead:
 		if "begin" in line:  # identifies input type ex. molecule, observables, etc.
 			input_types = line[6:len(line)-1]
-# =============================================================================
+# ============================================================================= OLD
 # 			if 'molecule' in input_types:
 # 				text_molecule = text_molecule +'''
 # print('<h1>''' + input_types.capitalize()+''' Types</h1>')'''
-# 			elif 'species' in input_types:
+# 			elif 'specie' in input_types:
 # 				text_moleucule =  text_molecule + '''
 # print('<h1>''' + input_types.capitalize()+'''s</h1>')'''
 # =============================================================================
 
-# =============================================================================
-#  			text_input_types = '''
-# print('<h1>''' + input_types.capitalize() + ''' Types</h1>')'''
-# =============================================================================
+			text_molecule = text_molecule + ''' 
+print('<h1>''' + input_types.capitalize() + '''</h1>')''' #NEW
 			write = True
 			continue
 		elif "end" in line:
 			write = False
 			continue
 		elif write:
-			if 'molecule' in input_types:
-				molecule_name = line.rsplit('(', 1)[0]
-				sites = line.split('(', 1)[1].split(')')[0].split(
-				    ",")  # splits all sites into a list
+			text_molecule =  text_molecule + molecule(line)  #NEW
 
-				text_molecule = text_molecule + '''
-add("'''+molecule_name+'''",
-    Diagram(
-		"''' + molecule_name + '''(",
-        '''
-				for i in sites:
-				 if '~' in i:
-						 states = i.split('~')
-						 text_molecule = text_molecule + '''
-        Choice(0, Comment("    "),
-               Sequence("'''+states[0]+'''",
-                        Choice(0, Comment("    "), "~'''+states[1]+'''", "~'''+states[2]+'''"),)
-			   ),
-				'''
-				 else:
-					  text_molecule = text_molecule + '''
-        Choice(0, Comment("    "),
-                "'''+i+'''",
-				),
-			    '''
-				text_molecule = text_molecule + ''' 
-		")"
-	))
-	'''
-			elif 'species' in input_types:
-				molecule_name = line.rsplit('(', 1)[0]
-				sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
-
-				text_molecule = text_molecule + '''
-add("'''+molecule_name+'''",
-    Diagram(
-		"''' + molecule_name+ '''(",
-        '''
-				for i in sites:
-				 if '~' in i:
-						 states = i.split('~')
-						 text_molecule = text_molecule + '''
-        Choice(0, Comment("    "),
-               Sequence("'''+states[0]+'''",
-                        Choice(0, Comment("    "), "~'''+states[1]+'''"),)
-			   ),
-				'''
-				 else:
-					  text_molecule = text_molecule + '''
-        Choice(0, Comment("    "),
-                "'''+i+'''",
-				),
-			    '''
-				text_molecule = text_molecule + ''' 
-		")"
-	))
-	'''
+# ============================================================================= OLD
+# 			if 'molecule' in input_types:
+# 				text_molecule =  text_molecule + molecule(line)
+# 				molecule_name = line.rsplit('(', 1)[0]
+# 				sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
+# 
+# 				text_molecule = text_molecule + '''
+# add("'''+molecule_name+'''",
+#     Diagram(
+# 		"''' + molecule_name + '''(",
+#         '''
+# 				for i in sites:
+# 				 if '~' in i:
+# 						 states = i.split('~')
+# 						 text_molecule = text_molecule + '''
+#         Choice(0, Comment("    "),
+#                Sequence("'''+states[0]+'''",
+#                         Choice(0, Comment("    "), "~'''+states[1]+'''", "~'''+states[2]+'''"),)
+# 			   ),
+# 				'''
+# 				 else:
+# 					  text_molecule = text_molecule + '''
+#         Choice(0, Comment("    "),
+#                 "'''+i+'''",
+# 				),
+# 			    '''
+# 				text_molecule = text_molecule + ''' 
+# 		")"
+# 	))
+# 	'''
+# 			elif 'species' in input_types:
+# 				molecule_name = line.rsplit('(', 1)[0]
+# 				sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
+# 
+# 				text_molecule = text_molecule + '''
+# add("'''+molecule_name+'''",
+#     Diagram(
+# 		"''' + molecule_name+ '''(",
+#         '''
+# 				for i in sites:
+# 				 if '~' in i:
+# 						 states = i.split('~')
+# 						 text_molecule = text_molecule + '''
+#         Choice(0, Comment("    "),
+#                Sequence("'''+states[0]+'''",
+#                         Choice(0, Comment("    "), "~'''+states[1]+'''"),)
+# 			   ),
+# 				'''
+# 				 else:
+# 					  text_molecule = text_molecule + '''
+#         Choice(0, Comment("    "),
+#                 "'''+i+'''",
+# 				),
+# 			    '''
+# 				text_molecule = text_molecule + ''' 
+# 		")"
+# 	))
+# 	'''
+# =============================================================================
 
 
 	text_intro = '''
