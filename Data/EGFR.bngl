@@ -6,5 +6,5 @@ Shc(sh3~U~P)
 end molecules
 
 begin species
-EGFR(ecd,Y1~U, Y2~U)
+EGFR(ecd,Y1~U, Y2~W)
 end species

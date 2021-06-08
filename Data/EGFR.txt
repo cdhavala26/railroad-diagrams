@@ -1,7 +1,7 @@
 
 import sys
 from railroad import *
-
+ 
 print('<h1>Molecules</h1>')
 add("EGFR",
     Diagram(
@@ -53,7 +53,7 @@ add("Shc",
 				    
 		")"
 	))
-	
+	 
 print('<h1>Species</h1>')
 add("EGFR",
     Diagram(
@@ -69,7 +69,7 @@ add("EGFR",
 				   
         Choice(0, Comment("    "),
                Sequence(" Y2",
-                        Choice(0, Comment("    "),  "~U"),)
+                        Choice(0, Comment("    "),  "~W"),)
 			   ),
 				    
 		")"

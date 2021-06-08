@@ -1271,14 +1271,19 @@ if __name__ == '__main__':
 
 	import sys
 	
-	def molecule(mol):
+	def molecule(mol): # Creates a molecule
 		molecule_name = mol.rsplit('(', 1)[0]
+		molecule.name = molecule_name
+		molecule.molecule = mol
+		
 		text = ''
 		text = text + '''
 add("'''+molecule_name+'''",
     Diagram(
 		"''' + molecule_name + '''(",'''
+		
 		sites = mol.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
+		
 		for i in sites:
 			 if '~' in i:
 				 states = i.split('~')
@@ -1299,126 +1304,44 @@ add("'''+molecule_name+'''",
                 "'''+i+'''",
 				),
 		'''
+		
 		text = text + ''' 
 		")"
 	))
 	'''
 		return text
-# ============================================================================= OLD
-# 	fileInput = input('Enter input file name: ')
-#
-# 	fileOutput = input("Enter output file name: ")
-# 	sys.stdout = open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' + fileInput + '.html', 'w')
-#
-# 	sys.stdout.write("<!doctype html><title>Test</title><body>")
-# 	exec(open('/Users/chandrikadhavala/Desktop/HRP/railroad-diagrams/Data/' +fileOutput  '.py').read())
-# =============================================================================
-
-    #NEW - tests if user inserted file name is .bngl and reads .bngl file
 
 	fileInput = input('Enter input file name: ')
 	fileToRead = open('Data/' + fileInput + '.bngl', 'r')
 
 	write = False
-	text_molecule = ''
+	text = ''
 	text_input_types = ''
 	text = ''
+	molecules = {}
 	for line in fileToRead:
 		if "begin" in line:  # identifies input type ex. molecule, observables, etc.
 			input_types = line[6:len(line)-1]
-# ============================================================================= OLD
-# 			if 'molecule' in input_types:
-# 				text_molecule = text_molecule +'''
-# print('<h1>''' + input_types.capitalize()+''' Types</h1>')'''
-# 			elif 'specie' in input_types:
-# 				text_moleucule =  text_molecule + '''
-# print('<h1>''' + input_types.capitalize()+'''s</h1>')'''
-# =============================================================================
 
-			text_molecule = text_molecule + ''' 
-print('<h1>''' + input_types.capitalize() + '''</h1>')''' #NEW
+			text = text + ''' 
+print('<h1>''' + input_types.capitalize() + '''</h1>')'''
 			write = True
 			continue
 		elif "end" in line:
 			write = False
 			continue
 		elif write:
-			text_molecule =  text_molecule + molecule(line)  #NEW
-
-# ============================================================================= OLD
-# 			if 'molecule' in input_types:
-# 				text_molecule =  text_molecule + molecule(line)
-# 				molecule_name = line.rsplit('(', 1)[0]
-# 				sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
-# 
-# 				text_molecule = text_molecule + '''
-# add("'''+molecule_name+'''",
-#     Diagram(
-# 		"''' + molecule_name + '''(",
-#         '''
-# 				for i in sites:
-# 				 if '~' in i:
-# 						 states = i.split('~')
-# 						 text_molecule = text_molecule + '''
-#         Choice(0, Comment("    "),
-#                Sequence("'''+states[0]+'''",
-#                         Choice(0, Comment("    "), "~'''+states[1]+'''", "~'''+states[2]+'''"),)
-# 			   ),
-# 				'''
-# 				 else:
-# 					  text_molecule = text_molecule + '''
-#         Choice(0, Comment("    "),
-#                 "'''+i+'''",
-# 				),
-# 			    '''
-# 				text_molecule = text_molecule + ''' 
-# 		")"
-# 	))
-# 	'''
-# 			elif 'species' in input_types:
-# 				molecule_name = line.rsplit('(', 1)[0]
-# 				sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
-# 
-# 				text_molecule = text_molecule + '''
-# add("'''+molecule_name+'''",
-#     Diagram(
-# 		"''' + molecule_name+ '''(",
-#         '''
-# 				for i in sites:
-# 				 if '~' in i:
-# 						 states = i.split('~')
-# 						 text_molecule = text_molecule + '''
-#         Choice(0, Comment("    "),
-#                Sequence("'''+states[0]+'''",
-#                         Choice(0, Comment("    "), "~'''+states[1]+'''"),)
-# 			   ),
-# 				'''
-# 				 else:
-# 					  text_molecule = text_molecule + '''
-#         Choice(0, Comment("    "),
-#                 "'''+i+'''",
-# 				),
-# 			    '''
-# 				text_molecule = text_molecule + ''' 
-# 		")"
-# 	))
-# 	'''
-# =============================================================================
-
+			if "molecule" in input_types: # creates  a dictionary of all molecules
+				molecule(line)
+				molecules[molecule.name] = molecule.molecule.rstrip('\n')
+			text =  text + molecule(line)
 
 	text_intro = '''
 import sys
 from railroad import *
 '''
-
-# =============================================================================
-# 	text_input_types = '''
-# print('<h1>''' + input_types.capitalize() + ''' Types</h1>')
-#     '''
-# =============================================================================
-
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
-	sys.stdout.write(text_intro + text_molecule)
+	sys.stdout.write(text_intro + text)
 	sys.stdout.close
 
 	sys.stdout = open('Data/' + fileInput + '.html', 'w')
