@@ -1,10 +1,17 @@
 begin molecules
-EGFR(ecd, Y1~U~P, Y2~U~P)
+EGFR(ecd, tmd, Y1~U~P, Y2~U~P)
 EGF(site)
 Grb2(sh2)
-Shc(sh3~U~P)
+Shc(sh3, Y~U~P)
 end molecules
 
 begin species
 EGFR(ecd,Y1~U, Y2~W)
+Grb2(sh2)
+Shc(sh3, Y~P)
+Shc(sh3, Y~P)
 end species
+
+begin observables
+EGFR(Y2~U)
+end observables 

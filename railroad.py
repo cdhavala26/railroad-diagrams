@@ -1310,6 +1310,24 @@ add("'''+molecule_name+'''",
 	))
 	'''
 		return text
+	
+	def observables(observable, molecule):
+		newObservable = ''
+	
+		molecule_sites = molecule.split('(', 1)[1].split(')')[0].split(", ")
+		observable_sites = observable.split('(', 1)[1].split(')')[0]
+	
+		observable_state = observable.split('(', 1)[1].split(')')[0].split("~")
+		
+		for i in molecule_sites:
+			if '~' in i:
+				molecule_states = i.split('~')
+				for j in molecule_states:
+					if j == observable_state[0]:
+						newObservable = molecule
+						newObservable = newObservable.replace(i, observable_sites)
+						
+		return newObservable
 
 	fileInput = input('Enter input file name: ')
 	fileToRead = open('Data/' + fileInput + '.bngl', 'r')
@@ -1318,7 +1336,7 @@ add("'''+molecule_name+'''",
 	text = ''
 	text_input_types = ''
 	text = ''
-	molecules = {}
+	moleculeTypes = {}
 	for line in fileToRead:
 		if "begin" in line:  # identifies input type ex. molecule, observables, etc.
 			input_types = line[6:len(line)-1]
@@ -1332,10 +1350,17 @@ print('<h1>''' + input_types.capitalize() + '''</h1>')'''
 			continue
 		elif write:
 			if "molecule" in input_types: # creates  a dictionary of all molecules
-				molecule(line)
-				molecules[molecule.name] = molecule.molecule.rstrip('\n')
-			text =  text + molecule(line)
-
+				text = text + molecule(line)
+				moleculeTypes[molecule.name] = molecule.molecule.rstrip('\n')
+			elif  "species" in input_types:
+				text = text + molecule(line)
+			elif "observables" in input_types:
+				observableName = line.rsplit('(', 1)[0]
+				for i in moleculeTypes:
+					if i == observableName:
+						text = text + molecule(observables(line, moleculeTypes[i]))
+				
+	
 	text_intro = '''
 import sys
 from railroad import *
