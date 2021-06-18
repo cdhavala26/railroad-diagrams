@@ -11,16 +11,16 @@ add("EGFR",
 				),
 		
         Choice(0, Comment("    "),
-                " tmd",
+                "tmd",
 				),
 		
         Choice(0, Comment("    "),
-               Sequence(" Y1",
+               Sequence("Y1",
                         Choice(0, Comment("    "),  "~U", "~P"),)
 			   ),
 				   
         Choice(0, Comment("    "),
-               Sequence(" Y2",
+               Sequence("Y2",
                         Choice(0, Comment("    "),  "~U", "~P"),)
 			   ),
 				    
@@ -55,7 +55,7 @@ add("Shc",
 				),
 		
         Choice(0, Comment("    "),
-               Sequence(" Y",
+               Sequence("Y",
                         Choice(0, Comment("    "),  "~U", "~P"),)
 			   ),
 				    
@@ -76,7 +76,7 @@ add("EGFR",
 			   ),
 				   
         Choice(0, Comment("    "),
-               Sequence(" Y2",
+               Sequence("Y2",
                         Choice(0, Comment("    "),  "~W"),)
 			   ),
 				    
@@ -101,7 +101,7 @@ add("Shc",
 				),
 		
         Choice(0, Comment("    "),
-               Sequence(" Y",
+               Sequence("Y",
                         Choice(0, Comment("    "),  "~P"),)
 			   ),
 				    
@@ -116,7 +116,7 @@ add("Shc",
 				),
 		
         Choice(0, Comment("    "),
-               Sequence(" Y",
+               Sequence("Y",
                         Choice(0, Comment("    "),  "~P"),)
 			   ),
 				    
@@ -132,16 +132,16 @@ add("EGFR",
 				),
 		
         Choice(0, Comment("    "),
-                " tmd",
+                "tmd",
 				),
 		
         Choice(0, Comment("    "),
-               Sequence(" Y1",
+               Sequence("Y1",
                         Choice(0, Comment("    "),  "~U", "~P"),)
 			   ),
 				   
         Choice(0, Comment("    "),
-               Sequence(" Y2",
+               Sequence("Y2",
                         Choice(0, Comment("    "),  "~U"),)
 			   ),
 				    

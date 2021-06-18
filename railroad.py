@@ -1314,7 +1314,7 @@ add("'''+molecule_name+'''",
 	def observables(observable, molecule):
 		newObservable = ''
 	
-		molecule_sites = molecule.split('(', 1)[1].split(')')[0].split(", ")
+		molecule_sites = molecule.split('(', 1)[1].split(')')[0].split(",")
 		observable_sites = observable.split('(', 1)[1].split(')')[0]
 	
 		observable_state = observable.split('(', 1)[1].split(')')[0].split("~")
