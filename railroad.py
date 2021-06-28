@@ -200,7 +200,6 @@ class Path(DiagramItem):
 def wrapString(value):
 	return value if isinstance(value, DiagramItem) else Terminal(value)
 
-
 DEFAULT_STYLE = '''\
 	svg.railroad-diagram {
 		background-color:hsl(30,20%,95%);
@@ -223,7 +222,7 @@ DEFAULT_STYLE = '''\
 	svg.railroad-diagram rect{
 		stroke-width:3;
 		stroke:black;
-		fill:hsl(120,100%,90%);
+		fill:hsl(7,100%,80%);
 	}
 	svg.railroad-diagram rect.group-box {
 		stroke: gray;
@@ -231,6 +230,101 @@ DEFAULT_STYLE = '''\
 		fill: none;
 	}
 '''
+MOLECULE_STYLE = '''\
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(192,80%,81%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+'''
+
+STATES_STYLE = '''\
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(104,64%,73%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+'''
+
+SITES_STYLE = '''\
+	svg.railroad-diagram {
+		background-color:hsl(30,20%,95%);
+	}
+	svg.railroad-diagram path {
+		stroke-width:3;
+		stroke:black;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram text {
+		font:bold 14px monospace;
+		text-anchor:middle;
+	}
+	svg.railroad-diagram text.label{
+		text-anchor:start;
+	}
+	svg.railroad-diagram text.comment{
+		font:italic 12px monospace;
+	}
+	svg.railroad-diagram rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(52,100%,73%);
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+'''
+
+
+
 
 
 class Style(DiagramItem):
@@ -268,7 +362,9 @@ class Diagram(DiagramMultiContainer):
 			self.items.insert(0, Start(self.type))
 		if items and not isinstance(items[-1], End):
 			self.items.append(End(self.type))
+			
 		self.css = kwargs.get("css", DEFAULT_STYLE)
+		
 		if self.css:
 			self.items.insert(0, Style(self.css))
 		self.up = 0
@@ -662,6 +758,7 @@ class Choice(DiagramMultiContainer):
 				self.down += max(arcs, item.up + VS + self.items[i-1].down + self.items[i-1].height)
 		self.down -= self.items[default].height # already counted in self.height
 		addDebug(self)
+		
 
 	def __repr__(self):
 		items = ', '.join(repr(item) for item in self.items)
@@ -701,9 +798,12 @@ class Choice(DiagramMultiContainer):
 						+ above[i+1].height)
 
 		# Do the straight-line path.
-		Path(x, y).right(AR * 2).addTo(self)
-		self.items[self.default].format(x + AR * 2, y, innerWidth).addTo(self)
-		Path(x + AR * 2 + innerWidth, y+self.height).right(AR * 2).addTo(self)
+# =============================================================================
+# 		Path(x, y).right(AR * 2).addTo(self)
+# 		self.items[self.default].format(x + AR * 2, y, innerWidth).addTo(self)
+# 		Path(x + AR * 2 + innerWidth, y+self.height).right(AR * 2).addTo(self)
+# =============================================================================
+		
 
 		# Do the elements that curve below
 		below = self.items[self.default + 1:]
@@ -725,6 +825,8 @@ class Choice(DiagramMultiContainer):
 					+ item.down
 					+ VS
 					+ (below[i + 1].up if i+1 < len(below) else 0))
+			
+		
 		return self
 
 
@@ -1233,8 +1335,10 @@ class Comment(DiagramItem):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y).h(rightGap).addTo(self)
+# =============================================================================
+# 		Path(x, y).h(leftGap).addTo(self)
+# 		Path(x + leftGap + self.width, y).h(rightGap).addTo(self)
+# =============================================================================
 
 		text = DiagramItem('text', {'x': x + leftGap + self.width / 2, 'y': y + 5, 'class': 'comment'}, self.text)
 		if self.href is not None:
@@ -1271,44 +1375,80 @@ if __name__ == '__main__':
 
 	import sys
 	
-	def molecule(mol): # Creates a molecule
-		molecule_name = mol.rsplit('(', 1)[0]
-		molecule.name = molecule_name
-		molecule.molecule = mol
-		
+	def sites(line):
 		text = ''
-		text = text + '''
+		sites = line.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
+	
+		for i in sites:
+				 if '~' in i:
+					 states = i.split('~')
+	# 				 print(states)
+					 text = text + '''
+        Choice(0, Comment("    "),
+               Sequence("'''+states[0]+'''",
+                        Choice(0, Comment("    "), '''
+					 for j in states[1:]:
+						 if j == states[-1]:
+							 text = text + ''' "~'''+j+'''"),)
+			   ),
+			   '''
+						 else:
+							 text = text + ''' "~'''+j+'''",'''
+				 else:
+					   text = text + '''
+        Choice(0, Comment("    "),
+                "'''+i+'''",
+				),
+	'''
+		return text
+	
+	def molecule(mol): # Creates a molecule
+		if '.' in mol:
+			complexes = mol.split('.')
+		
+			molecule_name = complexes[0].rsplit('(', 1)[0] + '.' + mol.split('.')[1].split('(',1)[0]
+			molecule.name = molecule_name.rstrip('\n')
+			molecule.molecule = mol
+		
+			text = ''
+			text = text + '''
+add("'''+molecule_name+'''",
+    Diagram('''
+		
+			for complexPart in complexes:	
+				complexPart_name = complexPart.split('(')[0]
+				text = text + '''"'''+complexPart_name + '''(",'''
+	
+				text = text + sites(complexPart)
+				
+				if complexes[-1] == complexPart:			
+					text = text + '''
+			")"
+			'''
+				else:
+					text = text + '''
+			")",
+'''
+			text = text + '''
+	))
+'''
+	
+		else:
+			molecule_name = mol.rsplit('(', 1)[0]
+			molecule.name = molecule_name
+			molecule.molecule = mol
+			
+			text = ''
+			text = text + '''
 add("'''+molecule_name+'''",
     Diagram(
 		"''' + molecule_name + '''(",'''
 		
-		sites = mol.split('(', 1)[1].split(')')[0].split(",")  # splits all sites into a list
-		
-		for i in sites:
-			 if '~' in i:
-				 states = i.split('~')
-				 text = text + '''
-        Choice(0, Comment("    "),
-               Sequence("'''+states[0]+'''",
-                        Choice(0, Comment("    "), '''
-				 for j in states[1:]:
-					 if j == states[-1]:
-						 text = text + ''' "~'''+j+'''"),)
-			   ),
-				   '''
-					 else:
-						 text = text + ''' "~'''+j+'''",'''
-			 else:
-				   text = text + '''
-        Choice(0, Comment("    "),
-                "'''+i+'''",
-				),
-		'''
-		
-		text = text + ''' 
+			text = text + sites(mol) + '''
 		")"
 	))
-	'''
+'''
+	
 		return text
 	
 	def observables(observable, molecule):
@@ -1337,6 +1477,7 @@ add("'''+molecule_name+'''",
 	text_input_types = ''
 	text = ''
 	moleculeTypes = {}
+	
 	for line in fileToRead:
 		if "begin" in line:  # identifies input type ex. molecule, observables, etc.
 			input_types = line[6:len(line)-1]

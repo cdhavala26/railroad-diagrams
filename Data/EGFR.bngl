@@ -6,10 +6,10 @@ Shc(sh3,Y~U~P)
 end molecules
 
 begin species
-EGFR(ecd,Y1~U,Y2~W)
+EGFR(ecd,Y1~U,Y2~U)
+EGFR(ecd,Y1~A,Y2~B).EGFR(ecd,Y1~C,Y2~D)
 Grb2(sh2)
-Shc(sh3,Y~P)
-Shc(sh3,Y~P)
+Shc(sh3)
 end species
 
 begin observables
