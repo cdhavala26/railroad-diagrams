@@ -224,107 +224,41 @@ DEFAULT_STYLE = '''\
 		stroke:black;
 		fill:hsl(7,100%,80%);
 	}
+	svg.railroad-diagram rect_rect{
+		stroke-width:3;
+		stroke:black;
+		fill:hsl(100,100%,80%);
+	}
 	svg.railroad-diagram rect.group-box {
 		stroke: gray;
 		stroke-dasharray: 10 5;
 		fill: none;
 	}
+	
 '''
 MOLECULE_STYLE = '''\
-	svg.railroad-diagram {
-		background-color:hsl(30,20%,95%);
-	}
-	svg.railroad-diagram path {
-		stroke-width:3;
-		stroke:black;
-		fill:rgba(0,0,0,0);
-	}
-	svg.railroad-diagram text {
-		font:bold 14px monospace;
-		text-anchor:middle;
-	}
-	svg.railroad-diagram text.label{
-		text-anchor:start;
-	}
-	svg.railroad-diagram text.comment{
-		font:italic 12px monospace;
-	}
 	svg.railroad-diagram rect{
 		stroke-width:3;
 		stroke:black;
 		fill:hsl(192,80%,81%);
 	}
-	svg.railroad-diagram rect.group-box {
-		stroke: gray;
-		stroke-dasharray: 10 5;
-		fill: none;
-	}
 '''
 
 STATES_STYLE = '''\
-	svg.railroad-diagram {
-		background-color:hsl(30,20%,95%);
-	}
-	svg.railroad-diagram path {
-		stroke-width:3;
-		stroke:black;
-		fill:rgba(0,0,0,0);
-	}
-	svg.railroad-diagram text {
-		font:bold 14px monospace;
-		text-anchor:middle;
-	}
-	svg.railroad-diagram text.label{
-		text-anchor:start;
-	}
-	svg.railroad-diagram text.comment{
-		font:italic 12px monospace;
-	}
 	svg.railroad-diagram rect{
 		stroke-width:3;
 		stroke:black;
 		fill:hsl(104,64%,73%);
 	}
-	svg.railroad-diagram rect.group-box {
-		stroke: gray;
-		stroke-dasharray: 10 5;
-		fill: none;
-	}
+
 '''
 
 SITES_STYLE = '''\
-	svg.railroad-diagram {
-		background-color:hsl(30,20%,95%);
-	}
-	svg.railroad-diagram path {
-		stroke-width:3;
-		stroke:black;
-		fill:rgba(0,0,0,0);
-	}
-	svg.railroad-diagram text {
-		font:bold 14px monospace;
-		text-anchor:middle;
-	}
-	svg.railroad-diagram text.label{
-		text-anchor:start;
-	}
-	svg.railroad-diagram text.comment{
-		font:italic 12px monospace;
-	}
 	svg.railroad-diagram rect{
 		stroke-width:3;
 		stroke:black;
 		fill:hsl(52,100%,73%);
-	}
-	svg.railroad-diagram rect.group-box {
-		stroke: gray;
-		stroke-dasharray: 10 5;
-		fill: none;
-	}
 '''
-
-
-
 
 
 class Style(DiagramItem):
@@ -1333,7 +1267,7 @@ class Comment(DiagramItem):
 
 	def format(self, x, y, width):
 		leftGap, rightGap = determineGaps(width, self.width)
-
+		
 		# Hook up the two sides if self is narrower than its stated width.
 # =============================================================================
 # 		Path(x, y).h(leftGap).addTo(self)
@@ -1389,20 +1323,18 @@ if __name__ == '__main__':
                         Choice(0, Comment("    "), '''
 					 for j in states[1:]:
 						 if j == states[-1]:
-							 text = text + ''' "~'''+j+'''"),)
-			   ),
-			   '''
+							 text = text + ''' "~'''+j+'''"),)),'''
 						 else:
 							 text = text + ''' "~'''+j+'''",'''
 				 else:
 					   text = text + '''
         Choice(0, Comment("    "),
-                "'''+i+'''",
-				),
-	'''
+                "'''+i+'''",),'''
 		return text
 	
+	
 	def molecule(mol): # Creates a molecule
+		text = ''
 		if '.' in mol:
 			complexes = mol.split('.')
 		
@@ -1410,8 +1342,7 @@ if __name__ == '__main__':
 			molecule.name = molecule_name.rstrip('\n')
 			molecule.molecule = mol
 		
-			text = ''
-			text = text + '''
+			text = '''
 add("'''+molecule_name+'''",
     Diagram('''
 		
@@ -1423,12 +1354,10 @@ add("'''+molecule_name+'''",
 				
 				if complexes[-1] == complexPart:			
 					text = text + '''
-			")"
-			'''
+			")"'''
 				else:
 					text = text + '''
-			")",
-'''
+			")",'''
 			text = text + '''
 	))
 '''
@@ -1438,8 +1367,7 @@ add("'''+molecule_name+'''",
 			molecule.name = molecule_name
 			molecule.molecule = mol
 			
-			text = ''
-			text = text + '''
+			text = '''
 add("'''+molecule_name+'''",
     Diagram(
 		"''' + molecule_name + '''(",'''
@@ -1473,7 +1401,6 @@ add("'''+molecule_name+'''",
 	fileToRead = open('Data/' + fileInput + '.bngl', 'r')
 
 	write = False
-	text = ''
 	text_input_types = ''
 	text = ''
 	moleculeTypes = {}
@@ -1506,6 +1433,7 @@ print('<h1>''' + input_types.capitalize() + '''</h1>')'''
 import sys
 from railroad import *
 '''
+
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
 	sys.stdout.write(text_intro + text)
 	sys.stdout.close
@@ -1523,6 +1451,7 @@ from railroad import *
 		.blue text { fill: blue; }
 		</style>
 		''')
+			
 	sys.stdout.write('</body></html>')
 
 sys.stdout.close

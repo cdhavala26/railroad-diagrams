@@ -7,23 +7,15 @@ add("EGFR",
     Diagram(
 		"EGFR(",
         Choice(0, Comment("    "),
-                "ecd",
-				),
-	
+                "ecd",),
         Choice(0, Comment("    "),
-                "tmd",
-				),
-	
+                "tmd",),
         Choice(0, Comment("    "),
                Sequence("Y1",
-                        Choice(0, Comment("    "),  "~U", "~P"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U", "~P"),)),
         Choice(0, Comment("    "),
                Sequence("Y2",
-                        Choice(0, Comment("    "),  "~U", "~P"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U", "~P"),)),
 		")"
 	))
 
@@ -31,9 +23,7 @@ add("EGF",
     Diagram(
 		"EGF(",
         Choice(0, Comment("    "),
-                "site",
-				),
-	
+                "site",),
 		")"
 	))
 
@@ -41,9 +31,7 @@ add("Grb2",
     Diagram(
 		"Grb2(",
         Choice(0, Comment("    "),
-                "sh2",
-				),
-	
+                "sh2",),
 		")"
 	))
 
@@ -51,14 +39,10 @@ add("Shc",
     Diagram(
 		"Shc(",
         Choice(0, Comment("    "),
-                "sh3",
-				),
-	
+                "sh3",),
         Choice(0, Comment("    "),
                Sequence("Y",
-                        Choice(0, Comment("    "),  "~U", "~P"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U", "~P"),)),
 		")"
 	))
  
@@ -67,65 +51,43 @@ add("EGFR",
     Diagram(
 		"EGFR(",
         Choice(0, Comment("    "),
-                "ecd",
-				),
-	
+                "ecd",),
         Choice(0, Comment("    "),
                Sequence("Y1",
-                        Choice(0, Comment("    "),  "~U"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U"),)),
         Choice(0, Comment("    "),
                Sequence("Y2",
-                        Choice(0, Comment("    "),  "~U"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U"),)),
 		")"
 	))
 
 add("EGFR.EGFR",
     Diagram("EGFR(",
         Choice(0, Comment("    "),
-                "ecd",
-				),
-	
+                "ecd",),
         Choice(0, Comment("    "),
                Sequence("Y1",
-                        Choice(0, Comment("    "),  "~A"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~A"),)),
         Choice(0, Comment("    "),
                Sequence("Y2",
-                        Choice(0, Comment("    "),  "~B"),)
-			   ),
-			   
-			")",
-"EGFR(",
+                        Choice(0, Comment("    "),  "~B"),)),
+			")","EGFR(",
         Choice(0, Comment("    "),
-                "ecd",
-				),
-	
+                "ecd",),
         Choice(0, Comment("    "),
                Sequence("Y1",
-                        Choice(0, Comment("    "),  "~C"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~C"),)),
         Choice(0, Comment("    "),
                Sequence("Y2",
-                        Choice(0, Comment("    "),  "~D"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~D"),)),
 			")"
-			
 	))
 
 add("Grb2",
     Diagram(
 		"Grb2(",
         Choice(0, Comment("    "),
-                "sh2",
-				),
-	
+                "sh2",),
 		")"
 	))
 
@@ -133,9 +95,7 @@ add("Shc",
     Diagram(
 		"Shc(",
         Choice(0, Comment("    "),
-                "sh3",
-				),
-	
+                "sh3",),
 		")"
 	))
  
@@ -144,22 +104,14 @@ add("EGFR",
     Diagram(
 		"EGFR(",
         Choice(0, Comment("    "),
-                "ecd",
-				),
-	
+                "ecd",),
         Choice(0, Comment("    "),
-                "tmd",
-				),
-	
+                "tmd",),
         Choice(0, Comment("    "),
                Sequence("Y1",
-                        Choice(0, Comment("    "),  "~U", "~P"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U", "~P"),)),
         Choice(0, Comment("    "),
                Sequence("Y2",
-                        Choice(0, Comment("    "),  "~U"),)
-			   ),
-			   
+                        Choice(0, Comment("    "),  "~U"),)),
 		")"
 	))
