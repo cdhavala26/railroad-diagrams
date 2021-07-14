@@ -57,7 +57,7 @@ class DiagramItem(object):
 		self.children = [text] if text else []
 		self.needsSpace = False
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		raise NotImplementedError  # Virtual
 
 	def addTo(self, parent):
@@ -91,7 +91,7 @@ class DiagramItem(object):
 class DiagramMultiContainer(DiagramItem):
 	def __init__(self, name, items, attrs=None, text=None):
 		DiagramItem.__init__(self, name, attrs, text)
-		self.items = [wrapString(item) for item in items]
+		self.items = [wrapString(item, 'orange') for item in items]
 
 	def walk(self, cb):
 		cb(self)
@@ -100,10 +100,13 @@ class DiagramMultiContainer(DiagramItem):
 
 
 class Path(DiagramItem):
-	def __init__(self, x, y):
+	def __init__(self, x, y, color):
 		self.x = x
 		self.y = y
-		DiagramItem.__init__(self, 'path', {'d': 'M%s %s' % (x, y)})
+		if color == 'red':
+			DiagramItem.__init__(self, 'path red', {'d': 'M%s %s' % (x, y)})
+		else:
+			DiagramItem.__init__(self, 'path', {'d': 'M%s %s' % (x, y)})
 
 	def m(self, x, y):
 		self.attrs['d'] += 'm{0} {1}'.format(x,y)
@@ -195,10 +198,12 @@ class Path(DiagramItem):
 
 	def __repr__(self):
 		return 'Path(%r, %r)' % (self.x, self.y)
+		
 
 
-def wrapString(value):
-	return value if isinstance(value, DiagramItem) else Terminal(value)
+def wrapString(value, color):
+
+	return value if isinstance(value, DiagramItem) else Terminal(value, color)
 
 DEFAULT_STYLE = '''\
 	svg.railroad-diagram {
@@ -206,7 +211,12 @@ DEFAULT_STYLE = '''\
 	}
 	svg.railroad-diagram path {
 		stroke-width:3;
-		stroke:black;
+		stroke:red;
+		fill:rgba(0,0,0,0);
+	}
+	svg.railroad-diagram red {
+		stroke-width:3;
+		stroke:green;
 		fill:rgba(0,0,0,0);
 	}
 	svg.railroad-diagram text {
@@ -221,43 +231,12 @@ DEFAULT_STYLE = '''\
 	}
 	svg.railroad-diagram rect{
 		stroke-width:3;
-		stroke:black;
-		fill:hsl(7,100%,80%);
-	}
-	svg.railroad-diagram rect_rect{
-		stroke-width:3;
-		stroke:black;
-		fill:hsl(100,100%,80%);
 	}
 	svg.railroad-diagram rect.group-box {
 		stroke: gray;
 		stroke-dasharray: 10 5;
 		fill: none;
 	}
-	
-'''
-MOLECULE_STYLE = '''\
-	svg.railroad-diagram rect{
-		stroke-width:3;
-		stroke:black;
-		fill:hsl(192,80%,81%);
-	}
-'''
-
-STATES_STYLE = '''\
-	svg.railroad-diagram rect{
-		stroke-width:3;
-		stroke:black;
-		fill:hsl(104,64%,73%);
-	}
-
-'''
-
-SITES_STYLE = '''\
-	svg.railroad-diagram rect{
-		stroke-width:3;
-		stroke:black;
-		fill:hsl(52,100%,73%);
 '''
 
 
@@ -272,7 +251,7 @@ class Style(DiagramItem):
 	def __repr__(self):
 		return 'Style(%r)' % self.css
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		return self
 
 	def writeSvg(self, write):
@@ -344,13 +323,13 @@ class Diagram(DiagramMultiContainer):
 			g.attrs['transform'] = 'translate(.5 .5)'
 		for item in self.items:
 			if item.needsSpace:
-				Path(x, y).h(10).addTo(g)
+				Path(x, y, 'black').h(10).addTo(g)
 				x += 10
-			item.format(x, y, item.width).addTo(g)
+			item.format(x, y, item.width, 'red').addTo(g)
 			x += item.width
 			y += item.height
 			if item.needsSpace:
-				Path(x, y).h(10).addTo(g)
+				Path(x, y, 'black').h(10).addTo(g)
 				x += 10
 		self.attrs['width'] = self.width + paddingLeft + paddingRight
 		self.attrs['height'] = self.up + self.height + self.down + paddingTop + paddingBottom
@@ -410,20 +389,20 @@ class Sequence(DiagramMultiContainer):
 		items = ', '.join(map(repr, self.items))
 		return 'Sequence(%s)' % items
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x+leftGap+self.width, y+self.height).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x+leftGap+self.width, y+self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 		for i,item in enumerate(self.items):
 			if item.needsSpace and i > 0:
-				Path(x, y).h(10).addTo(self)
+				Path(x, y, 'black').h(10).addTo(self)
 				x += 10
 			item.format(x, y, item.width).addTo(self)
 			x += item.width
 			y += item.height
 			if item.needsSpace and i < len(self.items)-1:
-				Path(x, y).h(10).addTo(self)
+				Path(x, y, 'black').h(10).addTo(self)
 				x += 10
 		return self
 
@@ -452,13 +431,13 @@ class Stack(DiagramMultiContainer):
 		items = ', '.join(repr(item) for item in self.items)
 		return 'Stack(%s)' % items
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
-		Path(x, y).h(leftGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
 		x += leftGap
 		xInitial = x
 		if len(self.items) > 1:
-			Path(x, y).h(AR).addTo(self)
+			Path(x, y, 'black').h(AR).addTo(self)
 			x += AR
 			innerWidth = self.width - AR*2
 		else:
@@ -468,7 +447,7 @@ class Stack(DiagramMultiContainer):
 			x += innerWidth
 			y += item.height
 			if i != len(self.items)-1:
-				(Path(x,y)
+				(Path(x,y, 'black')
 					.arc('ne').down(max(0, item.down + VS - AR*2))
 					.arc('es').left(innerWidth)
 					.arc('nw').down(max(0, self.items[i+1].up + VS - AR*2))
@@ -476,9 +455,9 @@ class Stack(DiagramMultiContainer):
 				y += max(item.down + VS, AR*2) + max(self.items[i+1].up + VS, AR*2)
 				x = xInitial + AR
 		if len(self.items) > 1:
-			Path(x, y).h(AR).addTo(self)
+			Path(x, y, 'black').h(AR).addTo(self)
 			x += AR
-		Path(x, y).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(rightGap).addTo(self)
 		return self
 
 
@@ -513,10 +492,10 @@ class OptionalSequence(DiagramMultiContainer):
 		items = ', '.join(repr(item) for item in self.items)
 		return 'OptionalSequence(%s)' % items
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
-		Path(x, y).right(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y + self.height).right(rightGap).addTo(self)
+		Path(x, y, 'black').right(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y + self.height, 'black').right(rightGap).addTo(self)
 		x += leftGap
 		upperLineY = y - self.up
 		last = len(self.items) - 1
@@ -525,7 +504,7 @@ class OptionalSequence(DiagramMultiContainer):
 			itemWidth = item.width + itemSpace
 			if i == 0:
 				# Upper skip
-				(Path(x,y)
+				(Path(x,y, 'black')
 					.arc('se')
 					.up(y - upperLineY - AR*2)
 					.arc('wn')
@@ -535,7 +514,7 @@ class OptionalSequence(DiagramMultiContainer):
 					.arc('ws')
 					.addTo(self))
 				# Straight line
-				(Path(x, y)
+				(Path(x, y, 'black')
 					.right(itemSpace + AR)
 					.addTo(self))
 				item.format(x + itemSpace + AR, y, item.width).addTo(self)
@@ -543,22 +522,22 @@ class OptionalSequence(DiagramMultiContainer):
 				y += item.height
 			elif i < last:
 				# Upper skip
-				(Path(x, upperLineY)
+				(Path(x, upperLineY, 'black')
 					.right(AR*2 + max(itemWidth, AR) + AR)
 					.arc('ne')
 					.down(y - upperLineY + item.height - AR*2)
 					.arc('ws')
 					.addTo(self))
 				# Straight line
-				(Path(x,y)
+				(Path(x,y, 'black')
 					.right(AR*2)
 					.addTo(self))
 				item.format(x + AR*2, y, item.width).addTo(self)
-				(Path(x + item.width + AR*2, y + item.height)
+				(Path(x + item.width + AR*2, y + item.height, 'black')
 					.right(itemSpace + AR)
 					.addTo(self))
 				# Lower skip
-				(Path(x,y)
+				(Path(x,y, 'black')
 					.arc('ne')
 					.down(item.height + max(item.down + VS, AR*2) - AR*2)
 					.arc('ws')
@@ -571,15 +550,15 @@ class OptionalSequence(DiagramMultiContainer):
 				y += item.height
 			else:
 				# Straight line
-				(Path(x, y)
+				(Path(x, y, 'black')
 					.right(AR*2)
 					.addTo(self))
 				item.format(x + AR*2, y, item.width).addTo(self)
-				(Path(x + AR*2 + item.width, y + item.height)
+				(Path(x + AR*2 + item.width, y + item.height, 'black')
 					.right(itemSpace + AR)
 					.addTo(self))
 				# Lower skip
-				(Path(x,y)
+				(Path(x,y, 'black')
 					.arc('ne')
 					.down(item.height + max(item.down + VS, AR*2) - AR*2)
 					.arc('ws')
@@ -629,12 +608,12 @@ class AlternatingSequence(DiagramMultiContainer):
 		items = ', '.join(repr(item) for item in self.items)
 		return 'AlternatingSequence(%s)' % items
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		arc = AR
 		gaps = determineGaps(width, self.width)
-		Path(x,y).right(gaps[0]).addTo(self)
+		Path(x,y, 'black').right(gaps[0]).addTo(self)
 		x += gaps[0]
-		Path(x+self.width, y).right(gaps[1]).addTo(self)
+		Path(x+self.width, y, 'black').right(gaps[1]).addTo(self)
 		# bounding box
 		# Path(x+gaps[0], y).up(self.up).right(self.width).down(self.up+self.down).left(self.width).up(self.down).addTo(self)
 		first = self.items[0]
@@ -643,16 +622,16 @@ class AlternatingSequence(DiagramMultiContainer):
 		# top
 		firstIn = self.up - first.up
 		firstOut = self.up - first.up - first.height
-		Path(x,y).arc('se').up(firstIn-2*arc).arc('wn').addTo(self)
+		Path(x,y, 'black').arc('se').up(firstIn-2*arc).arc('wn').addTo(self)
 		first.format(x + 2*arc, y - firstIn, self.width - 4*arc).addTo(self)
-		Path(x + self.width - 2*arc, y - firstOut).arc('ne').down(firstOut - 2*arc).arc('ws').addTo(self)
+		Path(x + self.width - 2*arc, y - firstOut, 'black').arc('ne').down(firstOut - 2*arc).arc('ws').addTo(self)
 
 		# bottom
 		secondIn = self.down - second.down - second.height
 		secondOut = self.down - second.down
-		Path(x,y).arc('ne').down(secondIn - 2*arc).arc('ws').addTo(self)
+		Path(x,y, 'black').arc('ne').down(secondIn - 2*arc).arc('ws').addTo(self)
 		second.format(x + 2*arc, y + secondIn, self.width - 4*arc).addTo(self)
-		Path(x + self.width - 2*arc, y + secondOut).arc('se').up(secondOut - 2*arc).arc('wn').addTo(self)
+		Path(x + self.width - 2*arc, y + secondOut, 'black').arc('se').up(secondOut - 2*arc).arc('wn').addTo(self)
 
 		# crossover
 		arcX = 1 / Math.sqrt(2) * arc * 2
@@ -660,10 +639,10 @@ class AlternatingSequence(DiagramMultiContainer):
 		crossY = max(arc, VS)
 		crossX = (crossY - arcY) + arcX
 		crossBar = (self.width - 4*arc - crossX)/2
-		(Path(x+arc, y - crossY/2 - arc).arc('ws').right(crossBar)
+		(Path(x+arc, y - crossY/2 - arc, 'black').arc('ws').right(crossBar)
 			.arc_8('n', 'cw').l(crossX - arcX, crossY - arcY).arc_8('sw', 'ccw')
 			.right(crossBar).arc('ne').addTo(self))
-		(Path(x+arc, y + crossY/2 + arc).arc('wn').right(crossBar)
+		(Path(x+arc, y + crossY/2 + arc, 'black').arc('wn').right(crossBar)
 			.arc_8('s', 'ccw').l(crossX - arcX, -(crossY - arcY)).arc_8('nw', 'cw')
 			.right(crossBar).arc('se').addTo(self))
 
@@ -698,12 +677,11 @@ class Choice(DiagramMultiContainer):
 		items = ', '.join(repr(item) for item in self.items)
 		return 'Choice(%r, %s)' % (self.default, items)
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y + self.height).h(rightGap).addTo(self)
+		Path(x + leftGap + self.width, y + self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 
 		innerWidth = self.width - AR * 4
@@ -719,9 +697,9 @@ class Choice(DiagramMultiContainer):
 					+ above[0].down
 					+ above[0].height)
 		for i,ni,item in doubleenumerate(above):
-			Path(x, y).arc('se').up(distanceFromY - AR * 2).arc('wn').addTo(self)
+			Path(x, y, 'black').arc('se').up(distanceFromY - AR * 2).arc('wn').addTo(self)
 			item.format(x + AR * 2, y - distanceFromY, innerWidth).addTo(self)
-			Path(x + AR * 2 + innerWidth, y - distanceFromY + item.height).arc('ne') \
+			Path(x + AR * 2 + innerWidth, y - distanceFromY + item.height, 'black').arc('ne') \
 				.down(distanceFromY - item.height + default.height - AR*2).arc('ws').addTo(self)
 			if ni < -1:
 				distanceFromY += max(
@@ -749,9 +727,107 @@ class Choice(DiagramMultiContainer):
 					+ VS
 					+ below[0].up)
 		for i, item in enumerate(below):
-			Path(x, y).arc('ne').down(distanceFromY - AR * 2).arc('ws').addTo(self)
+			Path(x, y, 'black').arc('ne').down(distanceFromY - AR * 2).arc('ws').addTo(self)
 			item.format(x + AR * 2, y + distanceFromY, innerWidth).addTo(self)
-			Path(x + AR * 2 + innerWidth, y + distanceFromY + item.height).arc('se') \
+			Path(x + AR * 2 + innerWidth, y + distanceFromY + item.height, 'black').arc('se') \
+				.up(distanceFromY - AR * 2 + item.height - default.height).arc('wn').addTo(self)
+			distanceFromY += max(
+				AR,
+				item.height
+					+ item.down
+					+ VS
+					+ (below[i + 1].up if i+1 < len(below) else 0))
+		DiagramItem('rect', {
+			"stroke": "green",
+			"fill": "pink"
+			
+			
+		}).addTo(self)
+
+		
+		return self
+
+class ChoiceRed(DiagramMultiContainer):
+	def __init__(self, default, *items):
+		DiagramMultiContainer.__init__(self, 'g', items)
+		assert default < len(items)
+		self.default = default
+		self.width = AR * 4 + max(item.width for item in self.items)
+		self.up = self.items[0].up
+		self.down = self.items[-1].down
+		self.height = self.items[default].height
+		for i, item in enumerate(self.items):
+			if i in [default-1, default+1]:
+				arcs = AR*2
+			else:
+				arcs = AR
+			if i < default:
+				self.up += max(arcs, item.height + item.down + VS + self.items[i+1].up)
+			elif i == default:
+				continue
+			else:
+				self.down += max(arcs, item.up + VS + self.items[i-1].down + self.items[i-1].height)
+		self.down -= self.items[default].height # already counted in self.height
+		addDebug(self)
+		
+
+	def __repr__(self):
+		items = ', '.join(repr(item) for item in self.items)
+		return 'Choice(%r, %s)' % (self.default, items)
+
+	def format(self, x, y, width, color):
+		leftGap, rightGap = determineGaps(width, self.width)
+
+		# Hook up the two sides if self is narrower than its stated width.
+		Path(x + leftGap + self.width, y + self.height, 'red').h(rightGap).addTo(self)
+		x += leftGap
+
+		innerWidth = self.width - AR * 4
+		default = self.items[self.default]
+
+		# Do the elements that curve above
+		above = self.items[:self.default][::-1]
+		if above:
+			distanceFromY = max(
+				AR * 2,
+				default.up
+					+ VS
+					+ above[0].down
+					+ above[0].height)
+		for i,ni,item in doubleenumerate(above):
+			Path(x, y, 'red').arc('se').up(distanceFromY - AR * 2).arc('wn').addTo(self)
+			item.format(x + AR * 2, y - distanceFromY, innerWidth).addTo(self)
+			Path(x + AR * 2 + innerWidth, y - distanceFromY + item.height, 'red').arc('ne') \
+				.down(distanceFromY - item.height + default.height - AR*2).arc('ws').addTo(self)
+			if ni < -1:
+				distanceFromY += max(
+					AR,
+					item.up
+						+ VS
+						+ above[i+1].down
+						+ above[i+1].height)
+
+		# Do the straight-line path.
+# =============================================================================
+# 		Path(x, y).right(AR * 2).addTo(self)
+# 		self.items[self.default].format(x + AR * 2, y, innerWidth).addTo(self)
+# 		Path(x + AR * 2 + innerWidth, y+self.height).right(AR * 2).addTo(self)
+# =============================================================================
+		
+
+		# Do the elements that curve below
+		below = self.items[self.default + 1:]
+		if below:
+			distanceFromY = max(
+				AR * 2,
+				default.height
+					+ default.down
+					+ VS
+					+ below[0].up)
+		for i, item in enumerate(below):
+			Path(x, y, 'red').arc('ne').down(distanceFromY - AR * 2).arc('ws').addTo(self)
+			item.format(x + AR * 2, y + distanceFromY, innerWidth).addTo(self)
+			Path(x + AR * 2 + innerWidth, y + distanceFromY + item.height, 'red').arc('se') \
 				.up(distanceFromY - AR * 2 + item.height - default.height).arc('wn').addTo(self)
 			distanceFromY += max(
 				AR,
@@ -795,12 +871,12 @@ class MultipleChoice(DiagramMultiContainer):
 		items = ', '.join(map(repr, self.items))
 		return 'MultipleChoice(%r, %r, %s)' % (self.default, self.type, items)
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y + self.height).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y + self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 
 		default = self.items[self.default]
@@ -815,12 +891,12 @@ class MultipleChoice(DiagramMultiContainer):
 					+ above[0].down
 					+ above[0].height)
 		for i,ni,item in doubleenumerate(above):
-			(Path(x + 30, y)
+			(Path(x + 30, y, 'black')
 				.up(distanceFromY - AR)
 				.arc('wn')
 				.addTo(self))
 			item.format(x + 30 + AR, y - distanceFromY, self.innerWidth).addTo(self)
-			(Path(x + 30 + AR + self.innerWidth, y - distanceFromY + item.height)
+			(Path(x + 30 + AR + self.innerWidth, y - distanceFromY + item.height, 'black')
 				.arc('ne')
 				.down(distanceFromY - item.height + default.height - AR - 10)
 				.addTo(self))
@@ -833,9 +909,9 @@ class MultipleChoice(DiagramMultiContainer):
 						+ above[i+1].height)
 
 		# Do the straight-line path.
-		Path(x + 30, y).right(AR).addTo(self)
+		Path(x + 30, y, 'black').right(AR).addTo(self)
 		self.items[self.default].format(x + 30 + AR, y, self.innerWidth).addTo(self)
-		Path(x + 30 + AR + self.innerWidth, y + self.height).right(AR).addTo(self)
+		Path(x + 30 + AR + self.innerWidth, y + self.height, 'black').right(AR).addTo(self)
 
 		# Do the elements that curve below
 		below = self.items[self.default + 1:]
@@ -847,12 +923,12 @@ class MultipleChoice(DiagramMultiContainer):
 					+ VS
 					+ below[0].up)
 		for i, item in enumerate(below):
-			(Path(x+30, y)
+			(Path(x+30, y, 'black')
 				.down(distanceFromY - AR)
 				.arc('ws')
 				.addTo(self))
 			item.format(x + 30 + AR, y + distanceFromY, self.innerWidth).addTo(self)
-			(Path(x + 30 + AR + self.innerWidth, y + distanceFromY + item.height)
+			(Path(x + 30 + AR + self.innerWidth, y + distanceFromY + item.height, 'black')
 				.arc('se')
 				.up(distanceFromY - AR + item.height - default.height - 10)
 				.addTo(self))
@@ -931,11 +1007,11 @@ class HorizontalChoice(DiagramMultiContainer):
 
 		addDebug(self)
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		# Hook up the two sides if self is narrower than its stated width.
 		leftGap, rightGap = determineGaps(width, self.width)
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y + self.height).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y + self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 
 		first = self.items[0]
@@ -945,7 +1021,7 @@ class HorizontalChoice(DiagramMultiContainer):
 		upperSpan = (sum(x.width+(20 if x.needsSpace else 0) for x in self.items[:-1])
 			+ (len(self.items) - 2) * AR*2
 			- AR)
-		(Path(x,y)
+		(Path(x,y, 'black')
 			.arc('se')
 			.up(self._upperTrack - AR*2)
 			.arc('wn')
@@ -974,7 +1050,7 @@ class HorizontalChoice(DiagramMultiContainer):
 					.addTo(self))
 				x += AR
 			else:
-				(Path(x, y - self._upperTrack)
+				(Path(x, y - self._upperTrack, 'black')
 					.arc('ne')
 					.v(self._upperTrack - AR*2)
 					.arc('ws')
@@ -989,17 +1065,17 @@ class HorizontalChoice(DiagramMultiContainer):
 			# output track
 			if i == len(self.items)-1:
 				if item.height == 0:
-					(Path(x,y)
+					(Path(x,y, 'black')
 						.h(AR)
 						.addTo(self))
 				else:
-					(Path(x,y+item.height)
+					(Path(x,y+item.height, 'black')
 						.arc('se')
 						.addTo(self))
 			elif i == 0 and item.height > self._lowerTrack:
 				# Needs to arc up to meet the lower track, not down.
 				if item.height - self._lowerTrack >= AR*2:
-					(Path(x, y+item.height)
+					(Path(x, y+item.height, 'black')
 						.arc('se')
 						.v(self._lowerTrack - item.height + AR*2)
 						.arc('wn')
@@ -1007,11 +1083,11 @@ class HorizontalChoice(DiagramMultiContainer):
 				else:
 					# Not enough space to fit two arcs
 					# so just bail and draw a straight line for now.
-					(Path(x, y+item.height)
+					(Path(x, y+item.height, 'black')
 						.l(AR*2, self._lowerTrack - item.height)
 						.addTo(self))
 			else:
-				(Path(x, y+item.height)
+				(Path(x, y+item.height, 'black')
 					.arc('ne')
 					.v(self._lowerTrack - item.height - AR*2)
 					.arc('ws')
@@ -1026,9 +1102,9 @@ def Optional(item, skip=False):
 class OneOrMore(DiagramItem):
 	def __init__(self, item, repeat=None):
 		DiagramItem.__init__(self, 'g')
-		self.item = wrapString(item)
+		self.item = wrapString(item, 'red')
 		repeat = repeat or Skip()
-		self.rep = wrapString(repeat)
+		self.rep = wrapString(repeat, 'yellow')
 		self.width = max(self.item.width, self.rep.width) + AR * 2
 		self.height = self.item.height
 		self.up = self.item.up
@@ -1038,25 +1114,25 @@ class OneOrMore(DiagramItem):
 		self.needsSpace = True
 		addDebug(self)
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y +self.height).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y +self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 
 		# Draw item
-		Path(x, y).right(AR).addTo(self)
+		Path(x, y, 'black').right(AR).addTo(self)
 		self.item.format(x + AR, y, self.width - AR * 2).addTo(self)
-		Path(x + self.width - AR, y + self.height).right(AR).addTo(self)
+		Path(x + self.width - AR, y + self.height, 'black').right(AR).addTo(self)
 
 		# Draw repeat arc
 		distanceFromY = max(AR*2, self.item.height + self.item.down + VS + self.rep.up)
-		Path(x + AR, y).arc('nw').down(distanceFromY - AR * 2) \
+		Path(x + AR, y, 'black').arc('nw').down(distanceFromY - AR * 2) \
 			.arc('ws').addTo(self)
 		self.rep.format(x + AR, y + distanceFromY, self.width - AR*2).addTo(self)
-		Path(x + self.width - AR, y + distanceFromY + self.rep.height).arc('se') \
+		Path(x + self.width - AR, y + distanceFromY + self.rep.height, 'black').arc('se') \
 			.up(distanceFromY - AR * 2 + self.rep.height - self.item.height).arc('en').addTo(self)
 
 		return self
@@ -1078,7 +1154,7 @@ def ZeroOrMore(item, repeat=None, skip=False):
 class Group(DiagramItem):
 	def __init__(self, item, label):
 		DiagramItem.__init__(self, 'g')
-		self.item = wrapString(item)
+		self.item = wrapString(item, 'blue')
 		if isinstance(label, DiagramItem):
 			self.label = label
 		elif label:
@@ -1099,10 +1175,10 @@ class Group(DiagramItem):
 		self.needsSpace = True
 		addDebug(self)
 
-	def format(self, x, y, width):
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
-		Path(x,y).h(leftGap).addTo(self)
-		Path(x+leftGap+self.width,y+self.height).h(rightGap).addTo(self)
+		Path(x,y, 'black').h(leftGap).addTo(self)
+		Path(x+leftGap+self.width,y+self.height, 'black').h(rightGap).addTo(self)
 		x += leftGap
 
 		DiagramItem('rect', {
@@ -1113,6 +1189,10 @@ class Group(DiagramItem):
 			"rx": AR,
 			"ry": AR,
 			'class':'group-box',
+			"stroke": "green",
+			"fill": "pink"
+			
+			
 		}).addTo(self)
 
 		self.item.format(x,y,self.width).addTo(self)
@@ -1144,7 +1224,7 @@ class Start(DiagramItem):
 		addDebug(self)
 
 	def format(self, x, y, _width):
-		path = Path(x, y-10)
+		path = Path(x, y-10, 'black')
 		if self.type == "complex":
 			path.down(20).m(0, -10).right(self.width).addTo(self)
 		else:
@@ -1178,7 +1258,7 @@ class End(DiagramItem):
 
 
 class Terminal(DiagramItem):
-	def __init__(self, text, href=None, title=None, cls=""):
+	def __init__(self, text, color, href=None, title=None, cls=""):
 		DiagramItem.__init__(self, 'g', {'class': ' '.join(['terminal', cls])})
 		self.text = text
 		self.href = href
@@ -1189,19 +1269,21 @@ class Terminal(DiagramItem):
 		self.down = 11
 		self.needsSpace = True
 		addDebug(self)
-
+					
+		
 	def __repr__(self):
 		return 'Terminal(%r, href=%r, title=%r)' % (self.text, self.href, self.title)
-
-	def format(self, x, y, width):
+# 		print(color)
+		sys.breakpoint()
+	def format(self, x, y, width, color):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y, 'black').h(rightGap).addTo(self)
 
 		DiagramItem('rect', {'x': x + leftGap, 'y': y - 11, 'width': self.width,
-							 'height': self.up + self.down, 'rx': 10, 'ry': 10}).addTo(self)
+							 'height': self.up + self.down, 'rx': 10, 'ry': 10, 'stroke': 'green', 'fill': color}).addTo(self)
 		text = DiagramItem('text', {'x': x + leftGap + self.width / 2, 'y': y + 4}, self.text)
 		if self.href is not None:
 			a = DiagramItem('a', {'xlink:href':self.href}, text).addTo(self)
@@ -1210,6 +1292,8 @@ class Terminal(DiagramItem):
 			text.addTo(self)
 		if self.title is not None:
 			DiagramItem('title', {}, self.title).addTo(self)
+			
+	
 		return self
 
 
@@ -1233,11 +1317,11 @@ class NonTerminal(DiagramItem):
 		leftGap, rightGap = determineGaps(width, self.width)
 
 		# Hook up the two sides if self is narrower than its stated width.
-		Path(x, y).h(leftGap).addTo(self)
-		Path(x + leftGap + self.width, y).h(rightGap).addTo(self)
+		Path(x, y, 'black').h(leftGap).addTo(self)
+		Path(x + leftGap + self.width, y, 'black').h(rightGap).addTo(self)
 
 		DiagramItem('rect', {'x': x + leftGap, 'y': y - 11, 'width': self.width,
-							 'height': self.up + self.down}).addTo(self)
+							 'height': self.up + self.down, 'stroke': "red", 'fill': "blue"}).addTo(self)
 		text = DiagramItem('text', {'x': x + leftGap + self.width / 2, 'y': y + 4}, self.text)
 		if self.href is not None:
 			a = DiagramItem('a', {'xlink:href':self.href}, text).addTo(self)
@@ -1294,7 +1378,7 @@ class Skip(DiagramItem):
 		addDebug(self)
 
 	def format(self, x, y, width):
-		Path(x, y).right(width).addTo(self)
+		Path(x, y, 'black').right(width).addTo(self)
 		return self
 
 	def __repr__(self):
@@ -1320,7 +1404,7 @@ if __name__ == '__main__':
 					 text = text + '''
         Choice(0, Comment("    "),
                Sequence("'''+states[0]+'''",
-                        Choice(0, Comment("    "), '''
+                        ChoiceRed(0, Comment("    "), '''
 					 for j in states[1:]:
 						 if j == states[-1]:
 							 text = text + ''' "~'''+j+'''"),)),'''
@@ -1434,8 +1518,12 @@ import sys
 from railroad import *
 '''
 
+	text2 = '''
+add("test",
+    Diagram(Group('foo','bar')))'''
+
 	sys.stdout = open('Data/' + fileInput + '.py', 'w')
-	sys.stdout.write(text_intro + text)
+	sys.stdout.write(text_intro + text + text2)
 	sys.stdout.close
 
 	sys.stdout = open('Data/' + fileInput + '.html', 'w')
@@ -1446,11 +1534,7 @@ from railroad import *
 
 	sys.stdout.write("<!doctype html><title>Test</title><body>")
 	exec(open('Data/' + fileInput + '.py').read())
-	sys.stdout.write('''
-		<style>
-		.blue text { fill: blue; }
-		</style>
-		''')
+
 			
 	sys.stdout.write('</body></html>')
 
